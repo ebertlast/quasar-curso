@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated class="bg-qrystalos">
+    <q-header elevated>
       <q-toolbar>
         <q-btn
           flat
@@ -26,6 +26,17 @@
           :key="link.title"
           v-bind="link"
         />
+
+        <q-item clickable :to="{ name: 'login' }">
+          <q-item-section avatar>
+            <q-icon name="fa-solid fa-arrow-right-from-bracket" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Cerrar Sesión</q-item-label>
+            <q-item-label caption>Salir del Sistema</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -82,6 +93,12 @@ const linksList = [
     icon: "favorite",
     link: "https://awesome.quasar.dev",
   },
+  // {
+  //   title: "Cerrar Sesión",
+  //   caption: "Salir del Sistema",
+  //   icon: "fa-solid fa-arrow-right-from-bracket",
+  //   link: "/",
+  // },
 ];
 
 export default defineComponent({
