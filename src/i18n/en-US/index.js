@@ -3,5 +3,11 @@
 
 export default {
   failed: 'Action failed',
-  success: 'Action was successful'
+  success: 'Action was successful',
+  form: {
+    login: {
+      usuario_label: 'Username *',
+      usuario_hint: 'Name or surname',
+    }
+  },
 }
