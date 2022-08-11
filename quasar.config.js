@@ -149,6 +149,7 @@ module.exports = configure(function (/* ctx */) {
       // (gets superseded if process.env.PORT is specified at runtime)
 
       middlewares: [
+        ctx.prod ? 'compression' : '',
         'render' // keep this as last one
       ]
     },
