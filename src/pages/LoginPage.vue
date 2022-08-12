@@ -2,6 +2,17 @@
   <q-page padding class="bg-indigo-1 flex flex-center">
     <div class="q-pa-md bg-white" style="width: 400px">
       <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+        {{compania}}
+
+        <q-select
+          v-model="compania"
+          :options="companiaList"
+          :label="$t('form.login.compania_label')"
+          option-label="RAZONSOCIAL"
+          option-value="COMPANIA"
+          filled
+        />
+
         <q-input
           filled
           v-model="usuario"
@@ -47,17 +58,20 @@
 
 <script setup>
 //#region IMPORTS
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
+import { api } from "src/boot/axios";
 //#endregion
 
 //#region DATA
+const compania = ref(null);
 const usuario = ref("");
 const clave = ref("");
 const accept = ref(false);
 const $q = useQuasar();
 const $router = useRouter();
+const companiaList = ref([]);
 //#endregion
 
 //#region METHODS
@@ -76,4 +90,16 @@ const onReset = () => {
   usuario.value = "";
   clave.value = "";
 };
+//#endregion
+
+//#region HOOKS
+onMounted(() => {
+  api.get("cia").then((res) => {
+    console.log(res)
+  })
+  // api.get("/compania").then((response) => {
+  //   companiaList.value = response.data;
+  // });
+});
+//#endregion
 </script>

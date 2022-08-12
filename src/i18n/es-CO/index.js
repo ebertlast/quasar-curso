@@ -5,6 +5,8 @@ export default {
       usuario_hint: 'Ingrese su usuario',
       clave_label: 'Clave *',
       clave_hint: 'Ingrese su contraseña',
+      compania_label: 'Empresa *',
+      compania_hint: 'Base de Datos',
     },
     required: {
       text: 'Escribe algo aquí',
