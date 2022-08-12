@@ -2,8 +2,6 @@
   <q-page padding class="bg-indigo-1 flex flex-center">
     <div class="q-pa-md bg-white" style="width: 400px">
       <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-        {{compania}}
-
         <q-select
           v-model="compania"
           :options="companiaList"
@@ -58,13 +56,15 @@
 
 <script setup>
 //#region IMPORTS
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { api } from "src/boot/axios";
+import { useSeguridadStore } from "src/stores/seguridad";
 //#endregion
 
 //#region DATA
+const store = useSeguridadStore();
 const compania = ref(null);
 const usuario = ref("");
 const clave = ref("");
@@ -94,12 +94,16 @@ const onReset = () => {
 
 //#region HOOKS
 onMounted(() => {
-  api.get("cia").then((res) => {
-    console.log(res)
+  api.get("cia/").then((res) => {
+    companiaList.value = res.data.result.recordset;
   })
-  // api.get("/compania").then((response) => {
-  //   companiaList.value = response.data;
-  // });
 });
+//#endregion
+
+//#region WATCHES
+watch(() => compania.value, (newVal, oldVal) => {
+  console.log("Nuevo Valor CIA: ", newVal);
+  console.log("Anterior Valor CIA: ", oldVal);
+})
 //#endregion
 </script>
