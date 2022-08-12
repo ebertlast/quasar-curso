@@ -67,7 +67,7 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      publicPath: 'https://ebertlast.github.io/quasar-curso/',
+      // publicPath: 'https://ebertlast.github.io/quasar-curso/',
       // analyze: true,
       // env: {},
       // rawDefine: {}
@@ -149,7 +149,7 @@ module.exports = configure(function (/* ctx */) {
       // (gets superseded if process.env.PORT is specified at runtime)
 
       middlewares: [
-        ctx.prod ? 'compression' : '',
+        // ctx.prod ? 'compression' : '',
         'render' // keep this as last one
       ]
     },
