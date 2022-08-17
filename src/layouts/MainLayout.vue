@@ -27,7 +27,7 @@
           v-bind="link"
         />
 
-        <q-item clickable :to="{ name: 'login' }">
+        <q-item clickable @click="onCerrarSesion">
           <q-item-section avatar>
             <q-icon name="fa-solid fa-arrow-right-from-bracket" />
           </q-item-section>
@@ -49,6 +49,7 @@
 <script>
 import { defineComponent, ref } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
+import { useSeguridadStore } from "src/stores/seguridad";
 
 const linksList = [
   {
@@ -108,7 +109,15 @@ export default defineComponent({
     EssentialLink,
   },
 
+  methods: {
+    onCerrarSesion() {
+      // alert("Cerrar Sesión");
+      this.store.setJwt(null);
+    },
+  },
+
   setup() {
+    const store = useSeguridadStore();
     const leftDrawerOpen = ref(false);
 
     return {
@@ -117,6 +126,7 @@ export default defineComponent({
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+      store,
     };
   },
 });
