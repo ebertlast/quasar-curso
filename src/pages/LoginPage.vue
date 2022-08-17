@@ -2,7 +2,6 @@
   <q-page padding class="bg-indigo-1 flex flex-center">
     <div class="q-pa-md bg-white" style="width: 400px">
       <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-
         <q-select
           v-model="compania"
           :options="companiaList"
@@ -62,7 +61,7 @@ import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { api } from "src/boot/axios";
 import { useSeguridadStore } from "src/stores/seguridad";
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n";
 //#endregion
 
 //#region DATA
@@ -74,7 +73,7 @@ const accept = ref(false);
 const $q = useQuasar();
 const $router = useRouter();
 const companiaList = ref([]);
-const { t } = useI18n()
+const { t } = useI18n();
 //#endregion
 
 //#region METHODS
@@ -82,32 +81,34 @@ const onSubmit = () => {
   $q.loading.show({
     message: "Consultando los datos del usuario...",
   });
-  api.post('ususu/ingresar', {
-    COMPANIA: compania.value.COMPANIA,
-    USUARIO: usuario.value,
-    CLAVE: clave.value,
-  }).then(res => {
-    const jwt = res.data.jwt;
-    const usuario = res.data.result;
+  api
+    .post("ususu/ingresar", {
+      COMPANIA: compania.value.COMPANIA,
+      USUARIO: usuario.value,
+      CLAVE: clave.value,
+    })
+    .then((res) => {
+      const jwt = res.data.jwt;
+      const usuario = res.data.result;
 
-    if (!jwt) {
-      $q.notify({
-        color: 'negative',
-        textColor: 'white',
-        icon: 'error',
-        message: t('form.login.credenciales_incorrectas'),
-        progress: true,
-        actions: [{ icon: 'close', color: 'white' }]
-      })
-    } else {
-      store.setJwt(jwt);
-      store.setUsuario(usuario);
-      $router.push({ name: "home" });
-    }
-  }).finally(() => {
-    $q.loading.hide();
-  })
-  
+      if (!jwt) {
+        $q.notify({
+          color: "negative",
+          textColor: "white",
+          icon: "error",
+          message: t("form.login.credenciales_incorrectas"),
+          progress: true,
+          actions: [{ icon: "close", color: "white" }],
+        });
+      } else {
+        store.setJwt(jwt);
+        store.setUsuario(usuario);
+        $router.push({ name: "home" });
+      }
+    })
+    .finally(() => {
+      $q.loading.hide();
+    });
 };
 const onReset = () => {
   usuario.value = "";
@@ -117,26 +118,34 @@ const onReset = () => {
 
 //#region HOOKS
 onMounted(() => {
-  api.get("cia/").then((res) => {
-    companiaList.value = res.data.result.recordset;
-  }).then(() => {
-    if (store.companiaFavorita) {
-      compania.value = store.companiaFavorita;
-    }
-  });
+  if (store.jwt) {
+    $router.push({ name: "home" });
+  }
+  api
+    .get("cia/")
+    .then((res) => {
+      companiaList.value = res.data.result.recordset;
+    })
+    .then(() => {
+      if (store.companiaFavorita) {
+        compania.value = store.companiaFavorita;
+      }
+    });
 });
 //#endregion
 
 //#region WATCHES
-watch(() => compania.value, (newVal) => {
-  store.setCompaniaFavorita(newVal);
-})
+watch(
+  () => compania.value,
+  (newVal) => {
+    store.setCompaniaFavorita(newVal);
+  }
+);
 //#endregion
 
 //#region COMPUTED
 const companiaSelected = computed(() => {
-  if(!store.companiaFavorita)
-    return 'Sin Compania Seleccionada';
+  if (!store.companiaFavorita) return "Sin Compania Seleccionada";
   return store.companiaFavorita.RAZONSOCIAL;
 }).value;
 //#endregion
