@@ -96,14 +96,14 @@ const onReset = () => {
 onMounted(() => {
   api.get("cia/").then((res) => {
     companiaList.value = res.data.result.recordset;
-  })
+  });
 });
 //#endregion
 
 //#region WATCHES
-watch(() => compania.value, (newVal, oldVal) => {
-  console.log("Nuevo Valor CIA: ", newVal);
-  console.log("Anterior Valor CIA: ", oldVal);
-})
+watch(
+  () => compania.value,
+  (newVal, oldVal) => {}
+);
 //#endregion
 </script>
