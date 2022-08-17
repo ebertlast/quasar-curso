@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 export const useSeguridadStore = defineStore('seguridad', {
   state: () => ({
     companiaFavorita: null,
+    usuario: null,
   }),
 
   getters: {
@@ -14,6 +15,17 @@ export const useSeguridadStore = defineStore('seguridad', {
   actions: {
     setCompaniaFavorita(cia) {
       this.companiaFavorita = cia
+    },
+    setUsuario(usuario) {
+      this.usuario = usuario
     }
+  },
+
+  persist: {
+    enabled: true,
+    strategies: [
+      { storage: localStorage, paths: ['companiaFavorita'] },
+      { storage: sessionStorage, paths: ['usuario'] },
+    ]
   }
 })

@@ -2,6 +2,7 @@
   <q-page padding class="bg-indigo-1 flex flex-center">
     <div class="q-pa-md bg-white" style="width: 400px">
       <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+
         <q-select
           v-model="compania"
           :options="companiaList"
@@ -56,7 +57,7 @@
 
 <script setup>
 //#region IMPORTS
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { api } from "src/boot/axios";
@@ -82,6 +83,7 @@ const onSubmit = () => {
     message: "Consultando los datos del usuario...",
   });
   setTimeout(() => {
+    store.setUsuario(usuario.value);
     $router.push({ name: "home" });
     $q.loading.hide();
   }, 5000);
@@ -96,14 +98,25 @@ const onReset = () => {
 onMounted(() => {
   api.get("cia/").then((res) => {
     companiaList.value = res.data.result.recordset;
-  })
+  }).then(() => {
+    if (store.companiaFavorita) {
+      compania.value = store.companiaFavorita;
+    }
+  });
 });
 //#endregion
 
 //#region WATCHES
-watch(() => compania.value, (newVal, oldVal) => {
-  console.log("Nuevo Valor CIA: ", newVal);
-  console.log("Anterior Valor CIA: ", oldVal);
+watch(() => compania.value, (newVal) => {
+  store.setCompaniaFavorita(newVal);
 })
+//#endregion
+
+//#region COMPUTED
+const companiaSelected = computed(() => {
+  if(!store.companiaFavorita)
+    return 'Sin Compania Seleccionada';
+  return store.companiaFavorita.RAZONSOCIAL;
+}).value;
 //#endregion
 </script>
