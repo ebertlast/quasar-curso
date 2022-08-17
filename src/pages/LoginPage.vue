@@ -62,31 +62,52 @@ import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { api } from "src/boot/axios";
 import { useSeguridadStore } from "src/stores/seguridad";
+import { useI18n } from 'vue-i18n'
 //#endregion
 
 //#region DATA
 const store = useSeguridadStore();
 const compania = ref(null);
-const usuario = ref("");
-const clave = ref("");
+const usuario = ref("OSOLANO");
+const clave = ref("OMAR2020");
 const accept = ref(false);
 const $q = useQuasar();
 const $router = useRouter();
 const companiaList = ref([]);
+const { t } = useI18n()
 //#endregion
 
 //#region METHODS
 const onSubmit = () => {
-  console.log("Usuario: " + usuario.value);
-  console.log("Clave: " + clave.value);
   $q.loading.show({
     message: "Consultando los datos del usuario...",
   });
-  setTimeout(() => {
-    store.setUsuario(usuario.value);
-    $router.push({ name: "home" });
+  api.post('ususu/ingresar', {
+    COMPANIA: compania.value.COMPANIA,
+    USUARIO: usuario.value,
+    CLAVE: clave.value,
+  }).then(res => {
+    const jwt = res.data.jwt;
+    const usuario = res.data.result;
+
+    if (!jwt) {
+      $q.notify({
+        color: 'negative',
+        textColor: 'white',
+        icon: 'error',
+        message: t('form.login.credenciales_incorrectas'),
+        progress: true,
+        actions: [{ icon: 'close', color: 'white' }]
+      })
+    } else {
+      store.setJwt(jwt);
+      store.setUsuario(usuario);
+      $router.push({ name: "home" });
+    }
+  }).finally(() => {
     $q.loading.hide();
-  }, 5000);
+  })
+  
 };
 const onReset = () => {
   usuario.value = "";
@@ -120,3 +141,5 @@ const companiaSelected = computed(() => {
 }).value;
 //#endregion
 </script>
+
+<style></style>

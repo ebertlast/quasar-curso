@@ -4,6 +4,7 @@ export const useSeguridadStore = defineStore('seguridad', {
   state: () => ({
     companiaFavorita: null,
     usuario: null,
+    jwt: null,
   }),
 
   getters: {
@@ -18,6 +19,9 @@ export const useSeguridadStore = defineStore('seguridad', {
     },
     setUsuario(usuario) {
       this.usuario = usuario
+    },
+    setJwt(jwt) {
+      this.jwt = jwt
     }
   },
 
@@ -25,7 +29,7 @@ export const useSeguridadStore = defineStore('seguridad', {
     enabled: true,
     strategies: [
       { storage: localStorage, paths: ['companiaFavorita'] },
-      { storage: sessionStorage, paths: ['usuario'] },
+      { storage: sessionStorage, paths: ['usuario', 'jwt'] },
     ]
   }
 })
