@@ -6,6 +6,7 @@
 import { mapState } from "pinia";
 import { defineComponent } from "vue";
 import { useSeguridadStore } from "./stores/seguridad";
+import { api } from "./boot/axios";
 
 export default defineComponent({
   name: "App",
@@ -16,6 +17,8 @@ export default defineComponent({
     jwt(newVal) {
       if (!newVal) {
         this.$router.push({ name: "login" });
+      } else {
+        api.defaults.headers.common["Authorization"] = `Bearer ${newVal}`;
       }
     },
   },
