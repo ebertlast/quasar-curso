@@ -26,7 +26,6 @@ BEGIN
 	INTO   #JSON
 	FROM OPENJSON (@json)
 		WITH (
-				MODELO         VARCHAR(100)      '$.MODELO',
 				METODO         VARCHAR(100)      '$.METODO',
 				USUARIO        VARCHAR(20)       '$.USUARIO',
 				PARAMETROS     NVARCHAR(MAX)  AS JSON

@@ -48,7 +48,7 @@ const onConsultarVariable = () => {
       console.log(res);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     })
     .finally(() => {
       $q.loading.hide();

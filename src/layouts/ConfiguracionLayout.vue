@@ -2,7 +2,7 @@
   <q-layout view="hHh Lpr fFf">
     <!-- Be sure to play with the Layout demo on docs -->
 
-    <q-header elevated>
+    <q-header elevated class="bg-black">
       <q-toolbar>
         <q-btn
           flat
@@ -51,6 +51,12 @@ const linksList = ref([
     caption: "Menú Principal",
     icon: "home",
     link: "/",
+  },
+  {
+    title: "Variables",
+    caption: "Variables del Sistema",
+    icon: "fact_check",
+    link: "/config/usvgs",
   },
 ]);
 //#endregion
