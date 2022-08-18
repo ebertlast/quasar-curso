@@ -51,10 +51,16 @@ BEGIN
         END
         ELSE
 		BEGIN
-            SELECT 'OK' OK 
+       SELECT 'OK' OK 
 		   SELECT * FROM USVGS WHERE IDVARIABLE = @IDVARIABLE
 	    END
 	END
+
+  IF @METODO = 'UPDATE'
+  BEGIN
+    PRINT 'UPDATE'
+  END
+
 
 END
 GO
