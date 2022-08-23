@@ -148,6 +148,7 @@ const companiaSelected = computed(() => {
   if (!store.companiaFavorita) return "Sin Compania Seleccionada";
   return store.companiaFavorita.RAZONSOCIAL;
 }).value;
+
 //#endregion
 </script>
 
