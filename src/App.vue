@@ -22,5 +22,12 @@ export default defineComponent({
       }
     },
   },
+  mounted() {
+    if (!this.jwt) {
+      this.$router.push({ name: "login" });
+    } else {
+      api.defaults.headers.common["Authorization"] = `Bearer ${this.jwt}`;
+    }
+  },
 });
 </script>
