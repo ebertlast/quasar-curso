@@ -56,35 +56,59 @@
 
 <script setup>
 //#region IMPORTS
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { api } from "src/boot/axios";
 import { useSeguridadStore } from "src/stores/seguridad";
+import { useI18n } from "vue-i18n";
 //#endregion
 
 //#region DATA
 const store = useSeguridadStore();
 const compania = ref(null);
-const usuario = ref("");
-const clave = ref("");
+const usuario = ref("OSOLANO");
+const clave = ref("OMAR2020");
 const accept = ref(false);
 const $q = useQuasar();
 const $router = useRouter();
 const companiaList = ref([]);
+const { t } = useI18n();
 //#endregion
 
 //#region METHODS
 const onSubmit = () => {
-  console.log("Usuario: " + usuario.value);
-  console.log("Clave: " + clave.value);
   $q.loading.show({
     message: "Consultando los datos del usuario...",
   });
-  setTimeout(() => {
-    $router.push({ name: "home" });
-    $q.loading.hide();
-  }, 5000);
+  api
+    .post("ususu/ingresar", {
+      COMPANIA: compania.value.COMPANIA,
+      USUARIO: usuario.value,
+      CLAVE: clave.value,
+    })
+    .then((res) => {
+      const jwt = res.data.jwt;
+      const usuario = res.data.result;
+
+      if (!jwt) {
+        $q.notify({
+          color: "negative",
+          textColor: "white",
+          icon: "error",
+          message: t("form.login.credenciales_incorrectas"),
+          progress: true,
+          actions: [{ icon: "close", color: "white" }],
+        });
+      } else {
+        store.setJwt(jwt);
+        store.setUsuario(usuario);
+        $router.push({ name: "home" });
+      }
+    })
+    .finally(() => {
+      $q.loading.hide();
+    });
 };
 const onReset = () => {
   usuario.value = "";
@@ -94,16 +118,38 @@ const onReset = () => {
 
 //#region HOOKS
 onMounted(() => {
-  api.get("cia/").then((res) => {
-    companiaList.value = res.data.result.recordset;
-  });
+  if (store.jwt) {
+    $router.push({ name: "home" });
+  }
+  api
+    .get("cia/")
+    .then((res) => {
+      companiaList.value = res.data.result.recordset;
+    })
+    .then(() => {
+      if (store.companiaFavorita) {
+        compania.value = store.companiaFavorita;
+      }
+    });
 });
 //#endregion
 
 //#region WATCHES
 watch(
   () => compania.value,
-  (newVal, oldVal) => {}
+  (newVal) => {
+    store.setCompaniaFavorita(newVal);
+  }
 );
 //#endregion
+
+//#region COMPUTED
+const companiaSelected = computed(() => {
+  if (!store.companiaFavorita) return "Sin Compania Seleccionada";
+  return store.companiaFavorita.RAZONSOCIAL;
+}).value;
+
+//#endregion
 </script>
+
+<style></style>

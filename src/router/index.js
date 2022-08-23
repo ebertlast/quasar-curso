@@ -1,4 +1,5 @@
 import { route } from 'quasar/wrappers'
+import { useSeguridadStore } from 'src/stores/seguridad'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
 
@@ -24,6 +25,17 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
+  })
+
+  Router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiereToken)) {
+      const store = useSeguridadStore()
+      if (!store.jwt) {
+        next(false)
+      }
+    }
+
+    next(true)
   })
 
   return Router

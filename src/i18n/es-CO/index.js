@@ -7,6 +7,7 @@ export default {
       clave_hint: 'Ingrese su contraseña',
       compania_label: 'Empresa *',
       compania_hint: 'Base de Datos',
+      credenciales_incorrectas: 'Credenciales Incorrectas, ¡Intente nuevamente!',
     },
     required: {
       text: 'Escribe algo aquí',
