@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh Lpr fFf">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -19,15 +19,13 @@
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
-
         <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
           v-bind="link"
         />
 
-        <q-item clickable :to="{ name: 'login' }">
+        <q-item clickable @click="onCerrarSesion">
           <q-item-section avatar>
             <q-icon name="fa-solid fa-arrow-right-from-bracket" />
           </q-item-section>
@@ -49,56 +47,15 @@
 <script>
 import { defineComponent, ref } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
+import { useSeguridadStore } from "src/stores/seguridad";
 
 const linksList = [
   {
-    title: "Docs",
-    caption: "quasar.dev",
-    icon: "school",
-    link: "https://quasar.dev",
+    title: "Configuración",
+    caption: "Módulo de Configuración",
+    icon: "settings",
+    link: "/config",
   },
-  {
-    title: "Github",
-    caption: "github.com/quasarframework",
-    icon: "code",
-    link: "https://github.com/quasarframework",
-  },
-  {
-    title: "Discord Chat Channel",
-    caption: "chat.quasar.dev",
-    icon: "chat",
-    link: "https://chat.quasar.dev",
-  },
-  {
-    title: "Forum",
-    caption: "forum.quasar.dev",
-    icon: "record_voice_over",
-    link: "https://forum.quasar.dev",
-  },
-  {
-    title: "Twitter",
-    caption: "@quasarframework",
-    icon: "rss_feed",
-    link: "https://twitter.quasar.dev",
-  },
-  {
-    title: "Facebook",
-    caption: "@QuasarFramework",
-    icon: "public",
-    link: "https://facebook.quasar.dev",
-  },
-  {
-    title: "Quasar Awesome",
-    caption: "Community Quasar projects",
-    icon: "favorite",
-    link: "https://awesome.quasar.dev",
-  },
-  // {
-  //   title: "Cerrar Sesión",
-  //   caption: "Salir del Sistema",
-  //   icon: "fa-solid fa-arrow-right-from-bracket",
-  //   link: "/",
-  // },
 ];
 
 export default defineComponent({
@@ -108,7 +65,15 @@ export default defineComponent({
     EssentialLink,
   },
 
+  methods: {
+    onCerrarSesion() {
+      // alert("Cerrar Sesión");
+      this.store.setJwt(null);
+    },
+  },
+
   setup() {
+    const store = useSeguridadStore();
     const leftDrawerOpen = ref(false);
 
     return {
@@ -117,6 +82,7 @@ export default defineComponent({
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+      store,
     };
   },
 });

@@ -4,7 +4,30 @@ const routes = [
     path: '/home',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue'), name: 'home' },
+      {
+        path: '', component: () => import('pages/IndexPage.vue'), name: 'home',
+        meta: {
+          requiereToken: true
+        }
+      },
+    ]
+  },
+  {
+    path: '/config',
+    component: () => import('layouts/ConfiguracionLayout.vue'),
+    children: [
+      {
+        path: '', component: () => import('pages/configuracion/IndexPage.vue'), name: 'config',
+        meta: {
+          requiereToken: true
+        }
+      },
+      {
+        path: 'usvgs', component: () => import('pages/configuracion/UsvgsPage.vue'), name: 'usvgs',
+        meta: {
+          requiereToken: true
+        }
+      },
     ]
   },
   {
