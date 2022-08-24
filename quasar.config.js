@@ -67,7 +67,7 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      // publicPath: 'https://ebertlast.github.io/quasar-curso/',
+      publicPath: 'https://ebertlast.github.io/quasar-curso/',
       // analyze: true,
       // env: {},
       // rawDefine: {}

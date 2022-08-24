@@ -1,0 +1,1 @@
+import{_ as e,k as a,l as o,m as s,f as t,Q as r}from"./index.ae82518f.js";import{Q as c}from"./QPage.ace85a2a.js";const n={};function d(f,i,l,_,p,m){return a(),o(c,{padding:""},{default:s(()=>[t(r,{color:"secondary",icon:"fact_check",label:"Variables Generales del Sistema",to:"/config/usvgs"})]),_:1})}var x=e(n,[["render",d]]);export{x as default};
