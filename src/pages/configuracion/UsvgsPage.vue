@@ -7,7 +7,7 @@
       enter-active-class="animated bounceInLeft"
       leave-active-class="animated bounceOutRight"
     >
-      <div v-if="variable" class="q-pa-md">
+      <div v-if="vista === 'detalle'" class="q-pa-md">
         <div class="text-h5">Detalle de la Variable</div>
         <q-item>
           <q-item-section>
@@ -28,7 +28,9 @@
 
         <q-card-actions>
           <q-btn flat icon="undo" @click="variable = null"> Cancelar </q-btn>
-          <q-btn flat color="primary"> Editar </q-btn>
+          <q-btn flat color="primary" @click="vista = 'formulario'">
+            Editar
+          </q-btn>
           <q-btn flat color="negative"> Borrar </q-btn>
         </q-card-actions>
       </div>
@@ -52,7 +54,7 @@
         :rows-per-page-options="[3, 5, 7, 10, 15, 20, 25, 50, 100]"
         class="q-pa-none q-ma-none"
         flat
-        v-show="!variable"
+        v-show="vista === ''"
       >
         <template v-slot:top-right>
           <q-input
@@ -80,17 +82,76 @@
         </template>
       </q-table>
     </transition>
+
+    <transition
+      appear
+      enter-active-class="animated bounceInLeft"
+      leave-active-class="animated bounceOutRight"
+    >
+      <div v-if="vista === 'formulario'">
+        <q-form @submit="onSubmitEditar" class="row q-col-gutter-xs q-pa-md">
+          <div class="col-12">
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Variable</q-item-label>
+                <q-item-label>{{ variable.IDVARIABLE }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+          <div class="col-6">
+            <q-input
+              v-model="variable.DESCRIPCION"
+              type="text"
+              label="Descripción"
+              maxlength="100"
+              readonly
+            />
+          </div>
+          <div class="col-6">
+            <q-input
+              v-model="variable.DATO"
+              type="text"
+              label="Valor de la variable"
+              maxlength="120"
+            />
+          </div>
+          <div class="col-12">
+            <q-input
+              v-model="variable.OBSERVACION"
+              type="text"
+              label="Observación"
+              maxlength="4096"
+              autogrow
+            />
+          </div>
+
+          <q-card-actions>
+            <q-btn
+              flat
+              @click="vista = 'detalle'"
+              icon="undo"
+              label="Cancelar"
+            />
+            <q-btn flat icon="check" color="primary" type="submit">
+              Guardar
+            </q-btn>
+          </q-card-actions>
+        </q-form>
+      </div>
+    </transition>
   </q-page>
 </template>
 
 <script setup>
 //#region IMPORTS
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
+import { useI18n } from "vue-i18n";
 //#endregion
 
 //#region DATA
+const { t } = useI18n();
 const variable = ref(null);
 const $q = useQuasar();
 const columns = ref([
@@ -150,6 +211,7 @@ const pagination = ref({
   rowsPerPage: 7,
   rowsNumber: 0,
 });
+const vista = ref("");
 //#endregion
 
 //#region METHODS
@@ -223,6 +285,44 @@ const onRequest = (props) => {
 
 const onSelect = (row) => {
   variable.value = row;
+  vista.value = "detalle";
+};
+
+const onSubmitEditar = () => {
+  $q.loading.show({
+    message: "Guardando la variable de sistema...",
+  });
+
+  api
+    .post("json", {
+      MODELO: "USVGS_CURSO",
+      METODO: "UPDATE",
+      PARAMETROS: {
+        IDVARIABLE: variable.value.IDVARIABLE,
+        DATO: variable.value.DATO,
+        OBSERVACION: variable.value.OBSERVACION,
+      },
+    })
+    .then((res) => {
+      console.log(res);
+
+      $q.notify({
+        color: "positive",
+        textColor: "white",
+        icon: "check",
+        message: t("form.saved"),
+        progress: true,
+        actions: [{ icon: "close", color: "white" }],
+      });
+
+      vista.value = "detalle";
+    })
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      $q.loading.hide();
+    });
 };
 //#endregion
 
@@ -233,5 +333,16 @@ onMounted(() => {
     filter: filter.value,
   });
 });
+//#endregion
+
+//#region WATCH
+watch(
+  () => variable.value,
+  (val) => {
+    if (!val) {
+      vista.value = "";
+    }
+  }
+);
 //#endregion
 </script>

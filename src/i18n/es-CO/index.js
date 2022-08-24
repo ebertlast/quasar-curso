@@ -16,5 +16,7 @@ export default {
       submit: 'Ingresar',
       reset: 'Reiniciar',
     },
+    saved: '¡Datos guardados!',
+
   },
 }
