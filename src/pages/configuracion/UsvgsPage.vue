@@ -1,48 +1,85 @@
 <template>
-  <q-page padding>
-    <q-btn color="primary" icon="undo" label="Regresar" to="/config" />
+  <q-page>
+    <!-- <q-btn color="primary" icon="undo" label="Regresar" to="/config" /> -->
 
-    <div class="row q-col-gutter-xs">
-      <div class="col-4">
-        <q-input v-model="variable" type="text" label="Nombre de la Variable">
-          <template v-slot:append>
-            <q-icon
-              name="search"
-              class="cursor-pointer"
-              @click="onConsultarVariable"
-            />
-          </template>
-        </q-input>
-      </div>
-    </div>
-
-    <q-table
-      title="Variables generales del sistema"
-      :rows="rows"
-      :columns="columns"
-      row-key="IDVARIABLE"
-      v-model:pagination="pagination"
-      :loading="loading"
-      :filter="filter"
-      @request="onRequest"
-      binary-state-sort
-      :rows-per-page-options="[3, 5, 7, 10, 15, 20, 25, 50, 100]"
+    <transition
+      appear
+      enter-active-class="animated bounceInLeft"
+      leave-active-class="animated bounceOutRight"
     >
-      <template v-slot:top-right>
-        <q-input
-          borderless
-          dense
-          debounce="300"
-          v-model="filter"
-          placeholder="Buscar"
-          clearable
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
-    </q-table>
+      <div v-if="variable" class="q-pa-md">
+        <div class="text-h5">Detalle de la Variable</div>
+        <q-item>
+          <q-item-section>
+            <q-item-label>{{ variable.IDVARIABLE }}</q-item-label>
+            <q-item-label caption lines="2">{{
+              variable.DESCRIPCION
+            }}</q-item-label>
+            <q-item-label
+              >Valor de la Variable: {{ variable.DATO }}</q-item-label
+            >
+            <q-item-label v-if="variable.OBSERVACION"
+              >Observación: {{ variable.OBSERVACION }}</q-item-label
+            >
+            <q-item-label>Estado: {{ variable.ESTADO }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-separator />
+
+        <q-card-actions>
+          <q-btn flat icon="undo" @click="variable = null"> Cancelar </q-btn>
+          <q-btn flat color="primary"> Editar </q-btn>
+          <q-btn flat color="negative"> Borrar </q-btn>
+        </q-card-actions>
+      </div>
+    </transition>
+
+    <transition
+      appear
+      enter-active-class="animated bounceInLeft"
+      leave-active-class="animated bounceOutRight"
+    >
+      <q-table
+        title="Variables generales del sistema"
+        :rows="rows"
+        :columns="columns"
+        row-key="IDVARIABLE"
+        v-model:pagination="pagination"
+        :loading="loading"
+        :filter="filter"
+        @request="onRequest"
+        binary-state-sort
+        :rows-per-page-options="[3, 5, 7, 10, 15, 20, 25, 50, 100]"
+        class="q-pa-none q-ma-none"
+        flat
+        v-show="!variable"
+      >
+        <template v-slot:top-right>
+          <q-input
+            borderless
+            dense
+            debounce="300"
+            v-model="filter"
+            placeholder="Buscar"
+            clearable
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+
+        <template v-slot:body-cell="props">
+          <q-td
+            :props="props"
+            class="cursor-pointer"
+            @click="onSelect(props.row)"
+          >
+            {{ props.value }}
+          </q-td>
+        </template>
+      </q-table>
+    </transition>
   </q-page>
 </template>
 
@@ -116,7 +153,7 @@ const pagination = ref({
 //#endregion
 
 //#region METHODS
-const onConsultarVariable = () => {
+const onConsultarVariableDEPRECATED = () => {
   $q.loading.show({
     message: "Consultando la variable de sistema...",
   });
@@ -182,6 +219,10 @@ const onRequest = (props) => {
     .finally(() => {
       loading.value = false;
     });
+};
+
+const onSelect = (row) => {
+  variable.value = row;
 };
 //#endregion
 

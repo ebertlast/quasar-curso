@@ -39,7 +39,15 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition
+          appear
+          enter-active-class="animated bounceInLeft"
+          leave-active-class="animated bounceOutRight"
+        >
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </q-page-container>
   </q-layout>
 </template>
