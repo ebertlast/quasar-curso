@@ -46,6 +46,7 @@
 
 <script>
 import { defineComponent, ref } from "vue";
+import { setCssVar } from "quasar";
 import EssentialLink from "components/EssentialLink.vue";
 import { useSeguridadStore } from "src/stores/seguridad";
 
@@ -70,6 +71,10 @@ export default defineComponent({
       // alert("Cerrar Sesión");
       this.store.setJwt(null);
     },
+  },
+
+  mounted() {
+    setCssVar("primary", "#1976D2");
   },
 
   setup() {

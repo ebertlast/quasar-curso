@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <q-btn
-      color="primary"
+      color="secondary"
       icon="fact_check"
       label="Variables Generales del Sistema"
       to="/config/usvgs"

@@ -2,7 +2,7 @@
   <q-layout view="hHh Lpr fFf">
     <!-- Be sure to play with the Layout demo on docs -->
 
-    <q-header elevated class="bg-black">
+    <q-header elevated :style="bgGradient">
       <q-toolbar>
         <q-btn
           flat
@@ -39,7 +39,8 @@
 
 <script setup>
 //#region IMPORTS
-import { ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
+import { getCssVar, setCssVar } from "quasar";
 import EssentialLink from "src/components/EssentialLink.vue";
 //#endregion
 
@@ -59,5 +60,20 @@ const linksList = ref([
     link: "/config/usvgs",
   },
 ]);
+//#endregion
+
+//#region HOOKS
+onBeforeMount(() => {
+  setCssVar("primary", "#F77E4F");
+  setCssVar("secondary", "#0f60b5");
+});
+//#endregion
+
+//#region COMPUTED
+const bgGradient = computed(() => {
+  return `background: linear-gradient(60deg, ${getCssVar(
+    "primary"
+  )} 0%, ${getCssVar("secondary")} 94%);`;
+});
 //#endregion
 </script>
