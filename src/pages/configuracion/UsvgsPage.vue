@@ -2,6 +2,8 @@
   <q-page>
     <!-- <q-btn color="primary" icon="undo" label="Regresar" to="/config" /> -->
 
+    Editar: {{ editar ? "si" : "no" }}
+
     <transition
       appear
       enter-active-class="animated bounceInLeft"
@@ -57,6 +59,12 @@
         v-show="vista === ''"
       >
         <template v-slot:top-right>
+          <q-btn
+            color="primary"
+            icon="add"
+            label="Nueva Variable"
+            @click="onNewVariable"
+          />
           <q-input
             borderless
             dense
@@ -64,6 +72,7 @@
             v-model="filter"
             placeholder="Buscar"
             clearable
+            class="q-pl-xl"
           >
             <template v-slot:append>
               <q-icon name="search" />
@@ -92,9 +101,22 @@
         <q-form @submit="onSubmitEditar" class="row q-col-gutter-xs q-pa-md">
           <div class="col-12">
             <q-item>
-              <q-item-section>
+              <q-item-section v-if="editar">
                 <q-item-label caption>Variable</q-item-label>
                 <q-item-label>{{ variable.IDVARIABLE }}</q-item-label>
+              </q-item-section>
+
+              <q-item-section v-else>
+                <q-input
+                  v-model="variable.IDVARIABLE"
+                  type="text"
+                  label="Id. Variable"
+                  maxlength="20"
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || $t('form.required.text'),
+                  ]"
+                />
               </q-item-section>
             </q-item>
           </div>
@@ -128,7 +150,7 @@
           <q-card-actions>
             <q-btn
               flat
-              @click="vista = 'detalle'"
+              @click="vista = editar ? 'detalle' : ''"
               icon="undo"
               label="Cancelar"
             />
@@ -144,7 +166,7 @@
 
 <script setup>
 //#region IMPORTS
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
@@ -324,6 +346,16 @@ const onSubmitEditar = () => {
       $q.loading.hide();
     });
 };
+
+const onNewVariable = () => {
+  variable.value = {
+    IDVARIABLE: "",
+    DESCRIPCION: "",
+    DATO: "",
+    OBSERVACION: "",
+  };
+  vista.value = "formulario";
+};
 //#endregion
 
 //#region HOOKS
@@ -344,5 +376,11 @@ watch(
     }
   }
 );
+//#endregion
+
+//#region COMPUTED
+const editar = computed(() => {
+  return variable.value?.IDVARIABLE !== "";
+});
 //#endregion
 </script>
