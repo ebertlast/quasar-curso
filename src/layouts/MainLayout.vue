@@ -65,6 +65,12 @@ const linksList = [
     icon: "settings",
     link: "/config",
   },
+  {
+    title: "Estresado ?",
+    caption: "Pausa Activa",
+    icon: "play",
+    link: "/game",
+  },
 ];
 
 export default defineComponent({
