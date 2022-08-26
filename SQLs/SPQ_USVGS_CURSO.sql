@@ -69,6 +69,21 @@ BEGIN
 		  OBSERVACION VARCHAR(4096) '$.OBSERVACION'
 	  )
 
+    --SET @IDVARIABLE = ''
+    --SET @DATO = ''
+
+    IF COALESCE(@IDVARIABLE, '') = ''
+    BEGIN
+      INSERT INTO @TBLERRORES(ERROR)
+			SELECT 'Identificador de la variable no debe estar vacía o nula'
+    END
+
+    IF COALESCE(@DATO, '') = ''
+    BEGIN
+      INSERT INTO @TBLERRORES(ERROR)
+			SELECT 'Valor de la variable no debe estar vacío o nulo'
+    END
+
 	  BEGIN TRAN
 		  BEGIN TRY
 			  UPDATE USVGS SET DATO = @DATO, OBSERVACION = @OBSERVACION

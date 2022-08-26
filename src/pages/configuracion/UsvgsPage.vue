@@ -2,8 +2,6 @@
   <q-page>
     <!-- <q-btn color="primary" icon="undo" label="Regresar" to="/config" /> -->
 
-    Editar: {{ editar ? "si" : "no" }}
-
     <transition
       appear
       enter-active-class="animated bounceInLeft"
@@ -98,15 +96,15 @@
       leave-active-class="animated bounceOutRight"
     >
       <div v-if="vista === 'formulario'">
-        <q-form @submit="onSubmitEditar" class="row q-col-gutter-xs q-pa-md">
-          <div class="col-12">
+        <q-form @submit="onSubmit" class="row q-col-gutter-xs q-pa-md">
+          <div class="col-12 q-col-gutter-xl">
             <q-item>
               <q-item-section v-if="editar">
                 <q-item-label caption>Variable</q-item-label>
                 <q-item-label>{{ variable.IDVARIABLE }}</q-item-label>
               </q-item-section>
 
-              <q-item-section v-else>
+              <q-item-section class="col-4" v-else>
                 <q-input
                   v-model="variable.IDVARIABLE"
                   type="text"
@@ -126,7 +124,10 @@
               type="text"
               label="Descripción"
               maxlength="100"
-              readonly
+              :readonly="editar"
+              :rules="[
+                (val) => (val && val.length > 0) || $t('form.required.text'),
+              ]"
             />
           </div>
           <div class="col-6">
@@ -234,6 +235,7 @@ const pagination = ref({
   rowsNumber: 0,
 });
 const vista = ref("");
+const editar = ref(true);
 //#endregion
 
 //#region METHODS
@@ -307,10 +309,11 @@ const onRequest = (props) => {
 
 const onSelect = (row) => {
   variable.value = row;
+  editar.value = true;
   vista.value = "detalle";
 };
 
-const onSubmitEditar = () => {
+const onSubmit = () => {
   $q.loading.show({
     message: "Guardando la variable de sistema...",
   });
@@ -318,26 +321,39 @@ const onSubmitEditar = () => {
   api
     .post("json", {
       MODELO: "USVGS_CURSO",
-      METODO: "UPDATE",
+      METODO: editar.value ? "UPDATE" : "INSERT",
       PARAMETROS: {
         IDVARIABLE: variable.value.IDVARIABLE,
         DATO: variable.value.DATO,
+        DESCRIPCION: editar.value ? undefined : variable.value.DESCRIPCION,
         OBSERVACION: variable.value.OBSERVACION,
       },
     })
     .then((res) => {
-      console.log(res);
-
-      $q.notify({
-        color: "positive",
-        textColor: "white",
-        icon: "check",
-        message: t("form.saved"),
-        progress: true,
-        actions: [{ icon: "close", color: "white" }],
+      let ok = false;
+      res.data.result.recordset.forEach((el) => {
+        ok = el.OK === "OK";
       });
 
-      vista.value = "detalle";
+      if (ok) {
+        $q.notify({
+          color: "positive",
+          textColor: "white",
+          icon: "check",
+          message: t("form.saved"),
+          progress: true,
+          actions: [{ icon: "close", color: "white" }],
+        });
+
+        if (editar.value) vista.value = "detalle";
+        else {
+          filter.value = variable.value.IDVARIABLE;
+          vista.value = "";
+        }
+      } else {
+        // errores.value = res.data.result.recordsets[1];
+        // haveErrors.value = true;
+      }
     })
     .catch((err) => {
       console.error(err);
@@ -354,6 +370,7 @@ const onNewVariable = () => {
     DATO: "",
     OBSERVACION: "",
   };
+  editar.value = false;
   vista.value = "formulario";
 };
 //#endregion
@@ -379,8 +396,5 @@ watch(
 //#endregion
 
 //#region COMPUTED
-const editar = computed(() => {
-  return variable.value?.IDVARIABLE !== "";
-});
 //#endregion
 </script>
