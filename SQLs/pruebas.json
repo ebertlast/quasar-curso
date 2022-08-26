@@ -1,0 +1,11 @@
+{
+  "MODELO": "USVGS_CURSO",
+  "METODO": "INSERT",
+  "PARAMETROS": {
+    "IDVARIABLE": "PRUEBA",
+    "DATO": "",
+    "DESCRIPCION": "Variable de prueba para un CRUD",
+    "OBSERVACION": ""
+  },
+  "USUARIO": "OSOLANO"
+}
