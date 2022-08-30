@@ -1,55 +1,74 @@
 <template>
-  <q-page padding class="bg-indigo-1 flex flex-center">
-    <div class="q-pa-md bg-white" style="width: 400px">
-      <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-        <q-select
-          v-model="compania"
-          :options="companiaList"
-          :label="$t('form.login.compania_label')"
-          option-label="RAZONSOCIAL"
-          option-value="COMPANIA"
-          filled
+  <!-- <q-page padding class="bg-indigo-1 flex flex-center"> -->
+  <q-page padding class="bg-indigo-1">
+    <div class="row q-col-gutter-none shadow-8" style="height: 94vh">
+      <div class="col-6 bg-light flex flex-center">
+        <q-img
+          src="https://placeimg.com/500/300/nature"
+          :ratio="16 / 9"
+          spinner-color="primary"
+          spinner-size="82px"
+          width="400px"
         />
+      </div>
+      <div class="col-6 bg-dark">
+        <div class="q-pa-md">
+          <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+            <q-select
+              v-model="compania"
+              :options="companiaList"
+              :label="$t('form.login.compania_label')"
+              option-label="RAZONSOCIAL"
+              option-value="COMPANIA"
+              filled
+              dark
+            />
 
-        <q-input
-          filled
-          v-model="usuario"
-          :label="$t('form.login.usuario_label')"
-          :hint="$t('form.login.usuario_hint')"
-          lazy-rules
-          :rules="[
-            (val) => (val && val.length > 0) || $t('form.required.text'),
-          ]"
-        />
+            <q-input
+              filled
+              v-model="usuario"
+              :label="$t('form.login.usuario_label')"
+              :hint="$t('form.login.usuario_hint')"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || $t('form.required.text'),
+              ]"
+              dark
+            />
 
-        <q-input
-          type="password"
-          filled
-          v-model="clave"
-          :label="$t('form.login.clave_label')"
-          :hint="$t('form.login.clave_hint')"
-          lazy-rules
-          :rules="[
-            (val) => (val && val.length > 0) || $t('form.required.text'),
-          ]"
-        />
+            <q-input
+              type="password"
+              filled
+              v-model="clave"
+              :label="$t('form.login.clave_label')"
+              :hint="$t('form.login.clave_hint')"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || $t('form.required.text'),
+              ]"
+              dark
+              v-if="paso === 2"
+            />
 
-        <div>
-          <q-btn
-            :label="$t('form.buttons.submit')"
-            type="submit"
-            color="primary"
-            :disable="usuario === '' || clave === ''"
-          />
-          <q-btn
-            :label="$t('form.buttons.reset')"
-            type="reset"
-            color="primary"
-            flat
-            class="q-ml-sm"
-          />
+            <div>
+              <q-btn
+                :label="$t('form.buttons.submit')"
+                type="submit"
+                color="primary"
+                text-color="black"
+                :disable="usuario === '' || clave === ''"
+              />
+              <q-btn
+                :label="$t('form.buttons.reset')"
+                type="reset"
+                color="primary"
+                flat
+                class="q-ml-sm"
+              />
+            </div>
+          </q-form>
         </div>
-      </q-form>
+      </div>
     </div>
   </q-page>
 </template>
@@ -74,10 +93,11 @@ const $q = useQuasar();
 const $router = useRouter();
 const companiaList = ref([]);
 const { t } = useI18n();
+const paso = ref(1);
 //#endregion
 
 //#region METHODS
-const onSubmit = () => {
+const onSubmit2 = () => {
   $q.loading.show({
     message: "Consultando los datos del usuario...",
   });
@@ -110,6 +130,19 @@ const onSubmit = () => {
       $q.loading.hide();
     });
 };
+
+const onSubmit = () => {
+  switch (paso.value) {
+    case 1:
+      $q.loading.show({
+        message: "Consultando tu usuario...",
+      });
+      break;
+    default:
+      break;
+  }
+};
+
 const onReset = () => {
   usuario.value = "";
   clave.value = "";
@@ -152,4 +185,20 @@ const companiaSelected = computed(() => {
 //#endregion
 </script>
 
-<style></style>
+<style>
+.bg-light {
+  background: linear-gradient(
+    60deg,
+    rgb(106, 220, 200) 0%,
+    rgb(106, 220, 200) 94%
+  );
+}
+
+.bg-dark {
+  background: linear-gradient(
+    60deg,
+    rgb(97, 111, 128) 0%,
+    rgb(33, 46, 63) 94%
+  ) !important;
+}
+</style>
