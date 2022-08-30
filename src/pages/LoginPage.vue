@@ -24,31 +24,100 @@
               dark
             />
 
-            <q-input
-              filled
-              v-model="usuario"
-              :label="$t('form.login.usuario_label')"
-              :hint="$t('form.login.usuario_hint')"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || $t('form.required.text'),
-              ]"
-              dark
-            />
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                filled
+                v-model="usuario"
+                :label="$t('form.login.usuario_label')"
+                :hint="$t('form.login.usuario_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                ]"
+                dark
+                v-if="paso === 1"
+                ref="input_usuario"
+              />
+            </transition>
 
-            <q-input
-              type="password"
-              filled
-              v-model="clave"
-              :label="$t('form.login.clave_label')"
-              :hint="$t('form.login.clave_hint')"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || $t('form.required.text'),
-              ]"
-              dark
-              v-if="paso === 2"
-            />
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <div
+                class="text-white text-h6"
+                v-if="paso > 1 && usuario_identificado?.NOMBRE"
+              >
+                {{ usuario_identificado?.NOMBRE }}
+              </div>
+            </transition>
+
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                type="password"
+                filled
+                v-model="clave_krystalos"
+                :label="$t('form.login.clave_krystalos_label')"
+                :hint="$t('form.login.clave_krystalos_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                ]"
+                dark
+                v-if="paso === 3"
+              />
+            </transition>
+
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                type="password"
+                filled
+                v-model="clave"
+                :label="$t('form.login.clave_label')"
+                :hint="$t('form.login.clave_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                ]"
+                dark
+                v-if="paso > 1"
+              />
+            </transition>
+
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                type="password"
+                filled
+                v-model="confirmar_clave"
+                :label="$t('form.login.clave_label')"
+                :hint="$t('form.login.clave_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                  (val) =>
+                    (val && val === clave) || $t('form.required.diferentes'),
+                ]"
+                dark
+                v-if="paso > 1"
+              />
+            </transition>
 
             <div>
               <q-btn
@@ -56,7 +125,6 @@
                 type="submit"
                 color="primary"
                 text-color="black"
-                :disable="usuario === '' || clave === ''"
               />
               <q-btn
                 :label="$t('form.buttons.reset')"
@@ -86,14 +154,21 @@ import { useI18n } from "vue-i18n";
 //#region DATA
 const store = useSeguridadStore();
 const compania = ref(null);
-const usuario = ref("OSOLANO");
-const clave = ref("OMAR2020");
+const usuario = ref("");
+
+const clave = ref("");
+const confirmar_clave = ref("");
+
+const input_usuario = ref(null);
+const clave_krystalos = ref("");
+
 const accept = ref(false);
 const $q = useQuasar();
 const $router = useRouter();
 const companiaList = ref([]);
 const { t } = useI18n();
 const paso = ref(1);
+const usuario_identificado = ref(null);
 //#endregion
 
 //#region METHODS
@@ -135,8 +210,49 @@ const onSubmit = () => {
   switch (paso.value) {
     case 1:
       $q.loading.show({
-        message: "Consultando tu usuario...",
+        message: `Verificando usuario ${usuario.value}...`,
       });
+
+      api
+        .get(`ususu/verificar/${compania.value.COMPANIA}/${usuario.value}`)
+        .then((res) => {
+          if (res.data.result.recordset.length <= 0) {
+            $q.dialog({
+              title: t("form.login.usuario_no_encontrado_titulo", {
+                username: usuario.value,
+              }),
+              message: t("form.login.usuario_no_encontrado_mensaje"),
+              ok: {
+                label: t("form.buttons.ok"),
+                color: "secondary",
+              },
+            });
+          } else {
+            res.data.result.recordset.forEach((el) => {
+              usuario_identificado.value = el;
+            });
+            usuario_identificado.value.REGISTRADO = 0;
+
+            if (usuario_identificado.value.REGISTRADO * 1 === 0) {
+              $q.dialog({
+                title: t("form.login.usuario_no_registrado_titulo"),
+                message: t("form.login.usuario_no_registrado_mensaje"),
+                ok: {
+                  label: t("form.buttons.ok"),
+                  color: "secondary",
+                },
+              }).onOk(() => {
+                paso.value = 3;
+              });
+            }
+
+            console.log(usuario_identificado.value);
+          }
+        })
+        .finally(() => {
+          $q.loading.hide();
+        });
+
       break;
     default:
       break;
@@ -146,6 +262,12 @@ const onSubmit = () => {
 const onReset = () => {
   usuario.value = "";
   clave.value = "";
+  clave_krystalos.value = "";
+  paso.value = 1;
+
+  setTimeout(() => {
+    input_usuario.value.select();
+  }, 200);
 };
 //#endregion
 
@@ -154,6 +276,11 @@ onMounted(() => {
   if (store.jwt) {
     $router.push({ name: "home" });
   }
+
+  setTimeout(() => {
+    input_usuario.value.select();
+  }, 200);
+
   api
     .get("cia/")
     .then((res) => {
