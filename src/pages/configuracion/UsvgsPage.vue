@@ -31,7 +31,7 @@
           <q-btn flat color="primary" @click="vista = 'formulario'">
             Editar
           </q-btn>
-          <q-btn flat color="negative"> Borrar </q-btn>
+          <q-btn flat color="negative" @click="onConfirmDelete"> Borrar </q-btn>
         </q-card-actions>
       </div>
     </transition>
@@ -73,7 +73,11 @@
             class="q-pl-xl"
           >
             <template v-slot:append>
-              <q-icon name="search" />
+              <q-icon
+                name="search"
+                class="cursor-pointer"
+                @click="onRefreshTable"
+              />
             </template>
           </q-input>
         </template>
@@ -372,6 +376,59 @@ const onNewVariable = () => {
   };
   editar.value = false;
   vista.value = "formulario";
+};
+
+const onConfirmDelete = () => {
+  $q.dialog({
+    class: "bg-negative",
+    dark: true,
+    title: "Descartar variable de sistema",
+    message:
+      "¿Confirma que desea realmente eliminar esta variable?, esta acción no se puede deshacer",
+    cancel: {
+      label: "Cancelar",
+    },
+    persistent: true,
+    ok: {
+      label: "Aceptar",
+      flat: true,
+    },
+  }).onOk(() => {
+    $q.loading.show({
+      message: "Eliminando la variable de sistema...",
+    });
+    api
+      .post("json", {
+        MODELO: "USVGS_CURSO",
+        METODO: "DELETE",
+        PARAMETROS: {
+          IDVARIABLE: variable.value.IDVARIABLE,
+        },
+      })
+      .then((res) => {
+        let ok = false;
+        res.data.result.recordset.forEach((el) => {
+          ok = el.OK === "OK";
+        });
+        if (ok) {
+          vista.value = "";
+          onRequest({
+            pagination: pagination.value,
+            filter: filter.value,
+          });
+        }
+      })
+      .finally(() => {
+        $q.loading.hide();
+      });
+  });
+};
+
+const onRefreshTable = () => {
+  onRequest({
+    pagination: pagination.value,
+    filter: filter.value,
+  });
 };
 //#endregion
 
