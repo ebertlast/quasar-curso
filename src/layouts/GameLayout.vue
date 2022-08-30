@@ -1,23 +1,16 @@
 <template>
-  <q-layout view="hHh Lpr fFf"> <!-- Be sure to play with the Layout demo on docs -->
+  <q-layout view="hHh Lpr fFf">
+    <!-- Be sure to play with the Layout demo on docs -->
 
     <!-- (Optional) The Header -->
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          round
-          dense
-          icon="menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-btn flat round dense icon="menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title>
-          Header
-        </q-toolbar-title>
+        <q-toolbar-title> Header </q-toolbar-title>
       </q-toolbar>
 
-      <q-tabs>
+      <!-- <q-tabs>
         <q-route-tab
           icon="map"
           to="/your/route"
@@ -30,18 +23,13 @@
           replace
           label="Other Tab"
         />
-      </q-tabs>
+      </q-tabs> -->
     </q-header>
 
     <!-- (Optional) The Footer -->
-    <q-footer>
+    <!-- <q-footer>
       <q-tabs switch-indicator>
-        <q-route-tab
-          icon="map"
-          to="/your/route"
-          replace
-          label="One Tab"
-        />
+        <q-route-tab icon="map" to="/your/route" replace label="One Tab" />
         <q-route-tab
           icon="assignment"
           to="/some/other/route"
@@ -51,26 +39,13 @@
       </q-tabs>
 
       <q-toolbar>
-        <q-btn
-          flat
-          round
-          dense
-          icon="menu"
-          @click="toggleLeftDrawer"
-        />
-        <q-toolbar-title>
-          Footer
-        </q-toolbar-title>
+        <q-btn flat round dense icon="menu" @click="toggleLeftDrawer" />
+        <q-toolbar-title> Footer </q-toolbar-title>
       </q-toolbar>
-    </q-footer>
+    </q-footer>-->
 
     <!-- (Optional) A Drawer; you can add one more with side="right" or change this one's side -->
-    <q-drawer
-      v-model="leftDrawerOpen"
-      side="left"
-      bordered
-      class="bg-grey-2"
-    >
+    <q-drawer v-model="leftDrawerOpen" side="left" bordered class="bg-grey-2">
       <!-- QScrollArea is optional -->
       <q-scroll-area class="fit q-pa-sm">
         <!-- Content here -->
@@ -81,25 +56,24 @@
       <!-- This is where pages get injected -->
       <router-view />
     </q-page-container>
-
   </q-layout>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref } from "vue";
 
 export default {
   // name: 'LayoutName',
 
-  setup () {
-    const leftDrawerOpen = ref(false)
+  setup() {
+    const leftDrawerOpen = ref(false);
 
     return {
       leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
-    }
-  }
-}
+      toggleLeftDrawer() {
+        leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
+    };
+  },
+};
 </script>
