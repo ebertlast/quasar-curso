@@ -74,6 +74,7 @@
                 ]"
                 dark
                 v-if="paso === 3"
+                ref="input_clave_krystalos"
               />
             </transition>
 
@@ -94,6 +95,7 @@
                 ]"
                 dark
                 v-if="paso > 1"
+                ref="input_clave"
               />
             </transition>
 
@@ -106,8 +108,8 @@
                 type="password"
                 filled
                 v-model="confirmar_clave"
-                :label="$t('form.login.clave_label')"
-                :hint="$t('form.login.clave_hint')"
+                :label="$t('form.login.confirmar_clave_label')"
+                :hint="$t('form.login.confirmar_clave_hint')"
                 lazy-rules
                 :rules="[
                   (val) => (val && val.length > 0) || $t('form.required.text'),
@@ -115,13 +117,13 @@
                     (val && val === clave) || $t('form.required.diferentes'),
                 ]"
                 dark
-                v-if="paso > 1"
+                v-if="paso === 3"
               />
             </transition>
 
             <div>
               <q-btn
-                :label="$t('form.buttons.submit')"
+                :label="lbl_btn_submit"
                 type="submit"
                 color="primary"
                 text-color="black"
@@ -160,6 +162,7 @@ const clave = ref("");
 const confirmar_clave = ref("");
 
 const input_usuario = ref(null);
+const input_clave = ref(null);
 const clave_krystalos = ref("");
 
 const accept = ref(false);
@@ -169,6 +172,8 @@ const companiaList = ref([]);
 const { t } = useI18n();
 const paso = ref(1);
 const usuario_identificado = ref(null);
+
+const input_clave_krystalos = ref(null);
 //#endregion
 
 //#region METHODS
@@ -231,7 +236,6 @@ const onSubmit = () => {
             res.data.result.recordset.forEach((el) => {
               usuario_identificado.value = el;
             });
-            usuario_identificado.value.REGISTRADO = 0;
 
             if (usuario_identificado.value.REGISTRADO * 1 === 0) {
               $q.dialog({
@@ -244,15 +248,103 @@ const onSubmit = () => {
               }).onOk(() => {
                 paso.value = 3;
               });
+            } else {
+              paso.value = 2;
             }
-
-            console.log(usuario_identificado.value);
           }
         })
         .finally(() => {
           $q.loading.hide();
         });
 
+      break;
+    case 2:
+      $q.loading.show({
+        message: "Consultando los datos del usuario...",
+      });
+      console.log({
+        COMPANIA: compania.value.COMPANIA,
+        USUARIO: usuario.value,
+        CLAVE: clave.value,
+      });
+      api
+        .post("ususu/ingresar", {
+          COMPANIA: compania.value.COMPANIA,
+          USUARIO: usuario.value,
+          CLAVE: clave.value,
+        })
+        .then((res) => {
+          console.log(res);
+          const jwt = res.data.jwt;
+          const usuario = res.data.result;
+
+          if (!jwt) {
+            $q.notify({
+              color: "negative",
+              textColor: "white",
+              icon: "error",
+              message: t("form.login.credenciales_incorrectas"),
+              progress: true,
+              actions: [{ icon: "close", color: "white" }],
+            });
+          } else {
+            store.setJwt(jwt);
+            store.setUsuario(usuario);
+            $router.push({ name: "home" });
+          }
+        })
+        .finally(() => {
+          $q.loading.hide();
+        });
+      break;
+    case 3:
+      $q.loading.show({
+        message: "Configurando usuario...",
+      });
+
+      api
+        .post("ususu/configurar", {
+          COMPANIA: compania.value.COMPANIA,
+          USUARIO: usuario.value,
+          CLAVE: clave_krystalos.value,
+          CLAVE_NUEVA: clave.value,
+        })
+        .then((res) => {
+          let configurado = false;
+          res.data.result.recordset.forEach((el) => {
+            configurado = el.CONFIGURADO * 1 > 0;
+          });
+          if (!configurado) {
+            $q.dialog({
+              title: t("form.login.usuario_no_configurado_titulo"),
+              message: t("form.login.usuario_no_configurado_mensaje"),
+              ok: {
+                label: t("form.buttons.ok"),
+                color: "secondary",
+              },
+            }).onOk(() => {
+              setTimeout(() => {
+                input_clave_krystalos.value.select();
+              }, 200);
+            });
+          } else {
+            $q.notify({
+              color: "positive",
+              textColor: "white",
+              icon: "done",
+              message: t("form.login.usuario_configurado_mensaje"),
+              progress: true,
+              actions: [{ icon: "close", color: "white" }],
+            });
+            paso.value = 2;
+            setTimeout(() => {
+              input_clave.value.select();
+            }, 200);
+          }
+        })
+        .finally(() => {
+          $q.loading.hide();
+        });
       break;
     default:
       break;
@@ -301,6 +393,22 @@ watch(
     store.setCompaniaFavorita(newVal);
   }
 );
+
+watch(
+  () => paso.value,
+  (val) => {
+    if (val === 3) {
+      setTimeout(() => {
+        input_clave_krystalos.value.select();
+      }, 200);
+    }
+    if (val === 2) {
+      setTimeout(() => {
+        input_clave.value.select();
+      }, 200);
+    }
+  }
+);
 //#endregion
 
 //#region COMPUTED
@@ -309,6 +417,15 @@ const companiaSelected = computed(() => {
   return store.companiaFavorita.RAZONSOCIAL;
 }).value;
 
+const lbl_btn_submit = computed(() => {
+  if (paso.value === 1) {
+    return t("form.login.buttons.identificar");
+  }
+  if (paso.value === 3) {
+    return t("form.login.buttons.configurar");
+  }
+  return t("form.login.buttons.ingresar");
+});
 //#endregion
 </script>
 

@@ -18,7 +18,7 @@ api.interceptors.response.use(
     // Your Interceptor code to do something with the response data
     // Return response data
     let ok = false;
-    if (response.data.result.recordset) {
+    if (response.data.result?.recordset) {
       response.data.result.recordset.forEach((el) => {
         ok = el.OK === "OK";
       });
@@ -31,7 +31,6 @@ api.interceptors.response.use(
               let store = useAppStore();
               store.setErrores(errores);
             }
-            // console.log('>>>>', errores);
           }
         }
       }
