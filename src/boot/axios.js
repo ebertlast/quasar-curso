@@ -1,6 +1,8 @@
 import { boot } from 'quasar/wrappers'
 import axios from 'axios'
 import { Notify } from 'quasar'
+import { useAppStore } from 'src/stores/app'
+import { useSeguridadStore } from 'src/stores/seguridad'
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
@@ -15,6 +17,30 @@ api.interceptors.response.use(
   (response) => {
     // Your Interceptor code to do something with the response data
     // Return response data
+    let ok = false;
+    if (response.data.result?.recordset) {
+      response.data.result.recordset.forEach((el) => {
+        ok = el.OK === "OK";
+      });
+      // alert(ok);
+      if (!ok) {
+        if (response.data.result.recordsets.length > 1) {
+          if (response.data.result.recordsets[1].length > 0) {
+            const errores = response.data.result.recordsets[1];
+            if (errores.length > 0) {
+              let store = useAppStore();
+              store.setErrores(errores);
+            }
+          }
+        }
+      }
+    }
+
+    if (response.data.res === "ok" && response.data.jwt && response.data.jwt !== '') {
+      let store = useSeguridadStore();
+      store.setJwt(response.data.jwt);
+    }
+
     return response
   },
   (error) => {

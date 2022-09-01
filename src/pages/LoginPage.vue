@@ -1,55 +1,144 @@
 <template>
-  <q-page padding class="bg-indigo-1 flex flex-center">
-    <div class="q-pa-md bg-white" style="width: 400px">
-      <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-        <q-select
-          v-model="compania"
-          :options="companiaList"
-          :label="$t('form.login.compania_label')"
-          option-label="RAZONSOCIAL"
-          option-value="COMPANIA"
-          filled
+  <!-- <q-page padding class="bg-indigo-1 flex flex-center"> -->
+  <q-page padding class="bg-indigo-1">
+    <div class="row q-col-gutter-none shadow-8" style="height: 94vh">
+      <div class="col-6 bg-light flex flex-center">
+        <q-img
+          src="https://placeimg.com/500/300/nature"
+          :ratio="16 / 9"
+          spinner-color="primary"
+          spinner-size="82px"
+          width="400px"
         />
+      </div>
+      <div class="col-6 bg-dark">
+        <div class="q-pa-md">
+          <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+            <q-select
+              v-model="compania"
+              :options="companiaList"
+              :label="$t('form.login.compania_label')"
+              option-label="RAZONSOCIAL"
+              option-value="COMPANIA"
+              filled
+              dark
+            />
 
-        <q-input
-          filled
-          v-model="usuario"
-          :label="$t('form.login.usuario_label')"
-          :hint="$t('form.login.usuario_hint')"
-          lazy-rules
-          :rules="[
-            (val) => (val && val.length > 0) || $t('form.required.text'),
-          ]"
-        />
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                filled
+                v-model="usuario"
+                :label="$t('form.login.usuario_label')"
+                :hint="$t('form.login.usuario_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                ]"
+                dark
+                v-if="paso === 1"
+                ref="input_usuario"
+              />
+            </transition>
 
-        <q-input
-          type="password"
-          filled
-          v-model="clave"
-          :label="$t('form.login.clave_label')"
-          :hint="$t('form.login.clave_hint')"
-          lazy-rules
-          :rules="[
-            (val) => (val && val.length > 0) || $t('form.required.text'),
-          ]"
-        />
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <div
+                class="text-white text-h6"
+                v-if="paso > 1 && usuario_identificado?.NOMBRE"
+              >
+                {{ usuario_identificado?.NOMBRE }}
+              </div>
+            </transition>
 
-        <div>
-          <q-btn
-            :label="$t('form.buttons.submit')"
-            type="submit"
-            color="primary"
-            :disable="usuario === '' || clave === ''"
-          />
-          <q-btn
-            :label="$t('form.buttons.reset')"
-            type="reset"
-            color="primary"
-            flat
-            class="q-ml-sm"
-          />
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                type="password"
+                filled
+                v-model="clave_krystalos"
+                :label="$t('form.login.clave_krystalos_label')"
+                :hint="$t('form.login.clave_krystalos_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                ]"
+                dark
+                v-if="paso === 3"
+                ref="input_clave_krystalos"
+              />
+            </transition>
+
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                type="password"
+                filled
+                v-model="clave"
+                :label="$t('form.login.clave_label')"
+                :hint="$t('form.login.clave_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                ]"
+                dark
+                v-if="paso > 1"
+                ref="input_clave"
+              />
+            </transition>
+
+            <transition
+              appear
+              enter-active-class="animated bounceInLeft"
+              leave-active-class="animated bounceOutRight"
+            >
+              <q-input
+                type="password"
+                filled
+                v-model="confirmar_clave"
+                :label="$t('form.login.confirmar_clave_label')"
+                :hint="$t('form.login.confirmar_clave_hint')"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || $t('form.required.text'),
+                  (val) =>
+                    (val && val === clave) || $t('form.required.diferentes'),
+                ]"
+                dark
+                v-if="paso === 3"
+              />
+            </transition>
+
+            <div>
+              <q-btn
+                :label="lbl_btn_submit"
+                type="submit"
+                color="primary"
+                text-color="black"
+              />
+              <q-btn
+                :label="$t('form.buttons.reset')"
+                type="reset"
+                color="primary"
+                flat
+                class="q-ml-sm"
+              />
+            </div>
+          </q-form>
         </div>
-      </q-form>
+      </div>
     </div>
   </q-page>
 </template>
@@ -67,17 +156,28 @@ import { useI18n } from "vue-i18n";
 //#region DATA
 const store = useSeguridadStore();
 const compania = ref(null);
-const usuario = ref("OSOLANO");
-const clave = ref("OMAR2020");
+const usuario = ref("");
+
+const clave = ref("");
+const confirmar_clave = ref("");
+
+const input_usuario = ref(null);
+const input_clave = ref(null);
+const clave_krystalos = ref("");
+
 const accept = ref(false);
 const $q = useQuasar();
 const $router = useRouter();
 const companiaList = ref([]);
 const { t } = useI18n();
+const paso = ref(1);
+const usuario_identificado = ref(null);
+
+const input_clave_krystalos = ref(null);
 //#endregion
 
 //#region METHODS
-const onSubmit = () => {
+const onSubmit2 = () => {
   $q.loading.show({
     message: "Consultando los datos del usuario...",
   });
@@ -110,9 +210,156 @@ const onSubmit = () => {
       $q.loading.hide();
     });
 };
+
+const onSubmit = () => {
+  switch (paso.value) {
+    case 1:
+      $q.loading.show({
+        message: `Verificando usuario ${usuario.value}...`,
+      });
+
+      api
+        .get(`ususu/verificar/${compania.value.COMPANIA}/${usuario.value}`)
+        .then((res) => {
+          if (res.data.result.recordset.length <= 0) {
+            $q.dialog({
+              title: t("form.login.usuario_no_encontrado_titulo", {
+                username: usuario.value,
+              }),
+              message: t("form.login.usuario_no_encontrado_mensaje"),
+              ok: {
+                label: t("form.buttons.ok"),
+                color: "secondary",
+              },
+            });
+          } else {
+            res.data.result.recordset.forEach((el) => {
+              usuario_identificado.value = el;
+            });
+
+            if (usuario_identificado.value.REGISTRADO * 1 === 0) {
+              $q.dialog({
+                title: t("form.login.usuario_no_registrado_titulo"),
+                message: t("form.login.usuario_no_registrado_mensaje"),
+                ok: {
+                  label: t("form.buttons.ok"),
+                  color: "secondary",
+                },
+              }).onOk(() => {
+                paso.value = 3;
+              });
+            } else {
+              paso.value = 2;
+            }
+          }
+        })
+        .finally(() => {
+          $q.loading.hide();
+        });
+
+      break;
+    case 2:
+      $q.loading.show({
+        message: "Consultando los datos del usuario...",
+      });
+      console.log({
+        COMPANIA: compania.value.COMPANIA,
+        USUARIO: usuario.value,
+        CLAVE: clave.value,
+      });
+      api
+        .post("ususu/ingresar", {
+          COMPANIA: compania.value.COMPANIA,
+          USUARIO: usuario.value,
+          CLAVE: clave.value,
+        })
+        .then((res) => {
+          console.log(res);
+          const jwt = res.data.jwt;
+          const usuario = res.data.result;
+
+          if (!jwt) {
+            $q.notify({
+              color: "negative",
+              textColor: "white",
+              icon: "error",
+              message: t("form.login.credenciales_incorrectas"),
+              progress: true,
+              actions: [{ icon: "close", color: "white" }],
+            });
+          } else {
+            store.setJwt(jwt);
+            store.setUsuario(usuario);
+            $router.push({ name: "home" });
+          }
+        })
+        .finally(() => {
+          $q.loading.hide();
+        });
+      break;
+    case 3:
+      $q.loading.show({
+        message: "Configurando usuario...",
+      });
+
+      api
+        .post("ususu/configurar", {
+          COMPANIA: compania.value.COMPANIA,
+          USUARIO: usuario.value,
+          CLAVE: clave_krystalos.value,
+          CLAVE_NUEVA: clave.value,
+        })
+        .then((res) => {
+          let configurado = false;
+          res.data.result.recordset.forEach((el) => {
+            configurado = el.CONFIGURADO * 1 > 0;
+          });
+          if (!configurado) {
+            $q.dialog({
+              title: t("form.login.usuario_no_configurado_titulo"),
+              message: t("form.login.usuario_no_configurado_mensaje"),
+              ok: {
+                label: t("form.buttons.ok"),
+                color: "secondary",
+              },
+            }).onOk(() => {
+              setTimeout(() => {
+                input_clave_krystalos.value.select();
+              }, 200);
+            });
+          } else {
+            $q.notify({
+              color: "positive",
+              textColor: "white",
+              icon: "done",
+              message: t("form.login.usuario_configurado_mensaje"),
+              progress: true,
+              actions: [{ icon: "close", color: "white" }],
+            });
+            paso.value = 2;
+            setTimeout(() => {
+              input_clave.value.select();
+            }, 200);
+          }
+        })
+        .finally(() => {
+          $q.loading.hide();
+        });
+      break;
+    default:
+      break;
+  }
+};
+
 const onReset = () => {
   usuario.value = "";
   clave.value = "";
+  clave_krystalos.value = "";
+  paso.value = 1;
+
+  setTimeout(() => {
+    input_usuario.value.select();
+  }, 200);
 };
 //#endregion
 
@@ -121,6 +368,11 @@ onMounted(() => {
   if (store.jwt) {
     $router.push({ name: "home" });
   }
+
+  setTimeout(() => {
+    input_usuario.value.select();
+  }, 200);
+
   api
     .get("cia/")
     .then((res) => {
@@ -141,6 +393,22 @@ watch(
     store.setCompaniaFavorita(newVal);
   }
 );
+
+watch(
+  () => paso.value,
+  (val) => {
+    if (val === 3) {
+      setTimeout(() => {
+        input_clave_krystalos.value.select();
+      }, 200);
+    }
+    if (val === 2) {
+      setTimeout(() => {
+        input_clave.value.select();
+      }, 200);
+    }
+  }
+);
 //#endregion
 
 //#region COMPUTED
@@ -149,7 +417,32 @@ const companiaSelected = computed(() => {
   return store.companiaFavorita.RAZONSOCIAL;
 }).value;
 
+const lbl_btn_submit = computed(() => {
+  if (paso.value === 1) {
+    return t("form.login.buttons.identificar");
+  }
+  if (paso.value === 3) {
+    return t("form.login.buttons.configurar");
+  }
+  return t("form.login.buttons.ingresar");
+});
 //#endregion
 </script>
 
-<style></style>
+<style>
+.bg-light {
+  background: linear-gradient(
+    60deg,
+    rgb(106, 220, 200) 0%,
+    rgb(106, 220, 200) 94%
+  );
+}
+
+.bg-dark {
+  background: linear-gradient(
+    60deg,
+    rgb(97, 111, 128) 0%,
+    rgb(33, 46, 63) 94%
+  ) !important;
+}
+</style>

@@ -31,7 +31,7 @@
           <q-btn flat color="primary" @click="vista = 'formulario'">
             Editar
           </q-btn>
-          <q-btn flat color="negative"> Borrar </q-btn>
+          <q-btn flat color="negative" @click="onConfirmDelete"> Borrar </q-btn>
         </q-card-actions>
       </div>
     </transition>
@@ -57,6 +57,12 @@
         v-show="vista === ''"
       >
         <template v-slot:top-right>
+          <q-btn
+            color="primary"
+            icon="add"
+            label="Nueva Variable"
+            @click="onNewVariable"
+          />
           <q-input
             borderless
             dense
@@ -64,9 +70,14 @@
             v-model="filter"
             placeholder="Buscar"
             clearable
+            class="q-pl-xl"
           >
             <template v-slot:append>
-              <q-icon name="search" />
+              <q-icon
+                name="search"
+                class="cursor-pointer"
+                @click="onRefreshTable"
+              />
             </template>
           </q-input>
         </template>
@@ -89,12 +100,25 @@
       leave-active-class="animated bounceOutRight"
     >
       <div v-if="vista === 'formulario'">
-        <q-form @submit="onSubmitEditar" class="row q-col-gutter-xs q-pa-md">
-          <div class="col-12">
+        <q-form @submit="onSubmit" class="row q-col-gutter-xs q-pa-md">
+          <div class="col-12 q-col-gutter-xl">
             <q-item>
-              <q-item-section>
+              <q-item-section v-if="editar">
                 <q-item-label caption>Variable</q-item-label>
                 <q-item-label>{{ variable.IDVARIABLE }}</q-item-label>
+              </q-item-section>
+
+              <q-item-section class="col-4" v-else>
+                <q-input
+                  v-model="variable.IDVARIABLE"
+                  type="text"
+                  label="Id. Variable"
+                  maxlength="20"
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || $t('form.required.text'),
+                  ]"
+                />
               </q-item-section>
             </q-item>
           </div>
@@ -104,7 +128,10 @@
               type="text"
               label="Descripción"
               maxlength="100"
-              readonly
+              :readonly="editar"
+              :rules="[
+                (val) => (val && val.length > 0) || $t('form.required.text'),
+              ]"
             />
           </div>
           <div class="col-6">
@@ -128,7 +155,7 @@
           <q-card-actions>
             <q-btn
               flat
-              @click="vista = 'detalle'"
+              @click="vista = editar ? 'detalle' : ''"
               icon="undo"
               label="Cancelar"
             />
@@ -144,7 +171,7 @@
 
 <script setup>
 //#region IMPORTS
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
@@ -212,6 +239,7 @@ const pagination = ref({
   rowsNumber: 0,
 });
 const vista = ref("");
+const editar = ref(true);
 //#endregion
 
 //#region METHODS
@@ -285,10 +313,11 @@ const onRequest = (props) => {
 
 const onSelect = (row) => {
   variable.value = row;
+  editar.value = true;
   vista.value = "detalle";
 };
 
-const onSubmitEditar = () => {
+const onSubmit = () => {
   $q.loading.show({
     message: "Guardando la variable de sistema...",
   });
@@ -296,26 +325,39 @@ const onSubmitEditar = () => {
   api
     .post("json", {
       MODELO: "USVGS_CURSO",
-      METODO: "UPDATE",
+      METODO: editar.value ? "UPDATE" : "INSERT",
       PARAMETROS: {
         IDVARIABLE: variable.value.IDVARIABLE,
         DATO: variable.value.DATO,
+        DESCRIPCION: editar.value ? undefined : variable.value.DESCRIPCION,
         OBSERVACION: variable.value.OBSERVACION,
       },
     })
     .then((res) => {
-      console.log(res);
-
-      $q.notify({
-        color: "positive",
-        textColor: "white",
-        icon: "check",
-        message: t("form.saved"),
-        progress: true,
-        actions: [{ icon: "close", color: "white" }],
+      let ok = false;
+      res.data.result.recordset.forEach((el) => {
+        ok = el.OK === "OK";
       });
 
-      vista.value = "detalle";
+      if (ok) {
+        $q.notify({
+          color: "positive",
+          textColor: "white",
+          icon: "check",
+          message: t("form.saved"),
+          progress: true,
+          actions: [{ icon: "close", color: "white" }],
+        });
+
+        if (editar.value) vista.value = "detalle";
+        else {
+          filter.value = variable.value.IDVARIABLE;
+          vista.value = "";
+        }
+      } else {
+        // errores.value = res.data.result.recordsets[1];
+        // haveErrors.value = true;
+      }
     })
     .catch((err) => {
       console.error(err);
@@ -323,6 +365,70 @@ const onSubmitEditar = () => {
     .finally(() => {
       $q.loading.hide();
     });
+};
+
+const onNewVariable = () => {
+  variable.value = {
+    IDVARIABLE: "",
+    DESCRIPCION: "",
+    DATO: "",
+    OBSERVACION: "",
+  };
+  editar.value = false;
+  vista.value = "formulario";
+};
+
+const onConfirmDelete = () => {
+  $q.dialog({
+    class: "bg-negative",
+    dark: true,
+    title: "Descartar variable de sistema",
+    message:
+      "¿Confirma que desea realmente eliminar esta variable?, esta acción no se puede deshacer",
+    cancel: {
+      label: "Cancelar",
+    },
+    persistent: true,
+    ok: {
+      label: "Aceptar",
+      flat: true,
+    },
+  }).onOk(() => {
+    $q.loading.show({
+      message: "Eliminando la variable de sistema...",
+    });
+    api
+      .post("json", {
+        MODELO: "USVGS_CURSO",
+        METODO: "DELETE",
+        PARAMETROS: {
+          IDVARIABLE: variable.value.IDVARIABLE,
+        },
+      })
+      .then((res) => {
+        let ok = false;
+        res.data.result.recordset.forEach((el) => {
+          ok = el.OK === "OK";
+        });
+        if (ok) {
+          vista.value = "";
+          onRequest({
+            pagination: pagination.value,
+            filter: filter.value,
+          });
+        }
+      })
+      .finally(() => {
+        $q.loading.hide();
+      });
+  });
+};
+
+const onRefreshTable = () => {
+  onRequest({
+    pagination: pagination.value,
+    filter: filter.value,
+  });
 };
 //#endregion
 
@@ -344,5 +450,8 @@ watch(
     }
   }
 );
+//#endregion
+
+//#region COMPUTED
 //#endregion
 </script>
