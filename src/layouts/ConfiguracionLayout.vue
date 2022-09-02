@@ -4,14 +4,7 @@
 
     <q-header elevated :style="bgGradient">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer = !toggleLeftDrawer"
-        />
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer = !toggleLeftDrawer" />
 
         <q-toolbar-title> Configuración </q-toolbar-title>
 
@@ -22,22 +15,14 @@
     <!-- (Optional) A Drawer; you can add one more with side="right" or change this one's side -->
     <q-drawer v-model="toggleLeftDrawer" show-if-above bordered>
       <q-list>
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
 
     <q-page-container>
       <!-- This is where pages get injected -->
       <router-view v-slot="{ Component }">
-        <transition
-          appear
-          enter-active-class="animated bounceInLeft"
-          leave-active-class="animated bounceOutRight"
-        >
+        <transition appear enter-active-class="animated bounceInLeft" leave-active-class="animated bounceOutRight">
           <component :is="Component" />
         </transition>
       </router-view>
@@ -66,6 +51,18 @@ const linksList = ref([
     caption: "Variables del Sistema",
     icon: "fact_check",
     link: "/config/usvgs",
+  },
+  {
+    title: "Perfil de Seguridad",
+    caption: "Perfil de Seguridad",
+    icon: "fact_check",
+    link: "/config/usgru",
+  },
+  {
+    title: "Perfil de Seguridad/Permisos",
+    caption: "Permisos del perfil de Seguridad",
+    icon: "fact_check",
+    link: "/config/usgruh",
   },
 ]);
 //#endregion
