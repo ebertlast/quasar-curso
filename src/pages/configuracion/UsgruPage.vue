@@ -143,12 +143,7 @@
           </div>
 
           <q-card-actions>
-            <q-btn
-              flat
-              @click="vista = editar ? 'detalle' : ''"
-              icon="undo"
-              label="Cancelar"
-            />
+            <q-btn flat @click="onFormCancel" icon="undo" label="Cancelar" />
             <q-btn flat icon="check" color="primary" type="submit">
               Guardar
             </q-btn>
@@ -170,6 +165,7 @@ import { useI18n } from "vue-i18n";
 //#region DATA
 const { t } = useI18n();
 const grupo_obj = ref(null);
+const grupo_bck = ref(null);
 const $q = useQuasar();
 const columns = ref([
   {
@@ -259,7 +255,7 @@ const onRequest = (props) => {
     .then((res) => {
       const rowsNumber = res.data.result.output.TotalRegistros;
       const returnedData = res.data.result.recordset;
-      console.log("returnedData", returnedData);
+      // console.log("returnedData", returnedData);
 
       pagination.value.rowsNumber = rowsNumber;
 
@@ -283,6 +279,7 @@ const onRequest = (props) => {
 const onSelect = (row) => {
   // console.log(">>>>>" + row.GRUPO);
   grupo_obj.value = row;
+  grupo_bck.value = JSON.parse(JSON.stringify(row));
   editar.value = true;
   vista.value = "detalle";
 };
@@ -397,6 +394,11 @@ const onRefreshTable = () => {
     pagination: pagination.value,
     filter: filter.value,
   });
+};
+
+const onFormCancel = () => {
+  grupo_obj.value.AMBITOMTTO = grupo_bck.value.AMBITOMTTO;
+  vista.value = editar.value ? "detalle" : "";
 };
 //#endregion
 
