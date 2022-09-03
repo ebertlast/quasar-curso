@@ -1,8 +1,11 @@
 <template>
   <q-page padding>
-
     <!-- detalle del item -->
-    <transition appear enter-active-class="animated bounceInLeft" leave-active-class="animated bounceOutRight">
+    <transition
+      appear
+      enter-active-class="animated bounceInLeft"
+      leave-active-class="animated bounceOutRight"
+    >
       <!-- content -->
       <div v-if="vista === 'detalle'" class="q-pa-md">
         <!-- <h5>configura grupo de seguridad</h5> -->
@@ -10,8 +13,13 @@
         <q-item>
           <q-item-section>
             <q-item-label>Codigo del Grupo: {{ grupo_obj.GRUPO }}</q-item-label>
-            <q-item-label caption lines="2"> Nombre del Grupo de seguridad: {{ grupo_obj.NOMBRE }}</q-item-label>
-            <q-item-label>Ambito MTTO del Grupo: {{ grupo_obj.AMBITOMTTO }}</q-item-label>
+            <q-item-label caption lines="2">
+              Nombre del Grupo de seguridad:
+              {{ grupo_obj.NOMBRE }}</q-item-label
+            >
+            <q-item-label
+              >Ambito MTTO del Grupo: {{ grupo_obj.AMBITOMTTO }}</q-item-label
+            >
           </q-item-section>
         </q-item>
         <q-separator />
@@ -24,31 +32,71 @@
           <q-btn flat color="negative" @click="onConfirmDelete"> Borrar </q-btn>
         </q-card-actions>
       </div>
-
     </transition>
     <!-- listado de items -->
-    <transition appear enter-active-class="animated bounceInLeft" leave-active-class="animated bounceOutRight">
-      <q-table title="Lista de Grupos de Seguridad" :rows="rows" :columns="columns" row-key="GRUPO"
-        v-model:pagination="pagination" :loading="loading" :filter="filter" @request="onRequest" binary-state-sort
-        :rows-per-page-options="[3, 5, 7, 10, 15, 20, 25, 50]" class="q-pa-none q-ma-none" flat v-show="vista === ''">
+    <transition
+      appear
+      enter-active-class="animated bounceInLeft"
+      leave-active-class="animated bounceOutRight"
+    >
+      <q-table
+        title="Lista de Grupos de Seguridad"
+        :rows="rows"
+        :columns="columns"
+        row-key="GRUPO"
+        v-model:pagination="pagination"
+        :loading="loading"
+        :filter="filter"
+        @request="onRequest"
+        binary-state-sort
+        :rows-per-page-options="[3, 5, 7, 10, 15, 20, 25, 50]"
+        class="q-pa-none q-ma-none"
+        flat
+        v-show="vista === ''"
+      >
         <template v-slot:top-right>
-          <q-btn color="primary" icon="add" label="Nuevo Grupo" @click="onNewGrupo" />
-          <q-input borderless dense debounce="300" v-model="filter" placeholder="Buscar" clearable class="q-pl-xl">
+          <q-btn
+            color="primary"
+            icon="add"
+            label="Nuevo Grupo"
+            @click="onNewGrupo"
+          />
+          <q-input
+            borderless
+            dense
+            debounce="300"
+            v-model="filter"
+            placeholder="Buscar"
+            clearable
+            class="q-pl-xl"
+          >
             <template v-slot:append>
-              <q-icon name="search" class="cursor-pointer" @click="onRefreshTable" />
+              <q-icon
+                name="search"
+                class="cursor-pointer"
+                @click="onRefreshTable"
+              />
             </template>
           </q-input>
         </template>
 
         <template v-slot:body-cell="props">
-          <q-td :props="props" class="cursor-pointer" @click="onSelect(props.row)">
+          <q-td
+            :props="props"
+            class="cursor-pointer"
+            @click="onSelect(props.row)"
+          >
             {{ props.value }}
           </q-td>
         </template>
       </q-table>
     </transition>
 
-    <transition appear enter-active-class="animated bounceInLeft" leave-active-class="animated bounceOutRight">
+    <transition
+      appear
+      enter-active-class="animated bounceInLeft"
+      leave-active-class="animated bounceOutRight"
+    >
       <div v-if="vista === 'formulario'">
         <q-form @submit="onSubmit" class="row q-col-gutter-xs q-pa-md">
           <div class="col-12 q-col-gutter-xl">
@@ -59,25 +107,48 @@
               </q-item-section>
 
               <q-item-section class="col-4" v-else>
-                <q-input v-model="grupo_obj.GRUPO" type="text" label="Grupo de Seguridad" maxlength="8" :rules="[
-                  (val) =>
-                    (val && val.length > 0) || $t('form.required.text'),
-                ]" />
+                <q-input
+                  v-model="grupo_obj.GRUPO"
+                  type="text"
+                  label="Grupo de Seguridad"
+                  maxlength="8"
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || $t('form.required.text'),
+                  ]"
+                />
               </q-item-section>
             </q-item>
           </div>
           <div class="col-6">
-            <q-input v-model="grupo_obj.NOMBRE" type="text" label="Nombre del Grupo" maxlength="40" :readonly="editar"
+            <q-input
+              v-model="grupo_obj.NOMBRE"
+              type="text"
+              label="Nombre del Grupo"
+              maxlength="40"
+              :readonly="editar"
               :rules="[
                 (val) => (val && val.length > 0) || $t('form.required.text'),
-              ]" />
+              ]"
+            />
           </div>
           <div class="col-12">
-            <q-input v-model="grupo_obj.AMBITOMTTO" type="text" label="Ambito MTTO" maxlength="20" autogrow />
+            <q-input
+              v-model="grupo_obj.AMBITOMTTO"
+              type="text"
+              label="Ambito MTTO"
+              maxlength="20"
+              autogrow
+            />
           </div>
 
           <q-card-actions>
-            <q-btn flat @click="vista = editar ? 'detalle' : ''" icon="undo" label="Cancelar" />
+            <q-btn
+              flat
+              @click="vista = editar ? 'detalle' : ''"
+              icon="undo"
+              label="Cancelar"
+            />
             <q-btn flat icon="check" color="primary" type="submit">
               Guardar
             </q-btn>
@@ -85,12 +156,10 @@
         </q-form>
       </div>
     </transition>
-
   </q-page>
 </template>
 
 <script setup >
-
 //#region IMPORTS
 import { computed, onMounted, ref, watch } from "vue";
 import { api } from "src/boot/axios";
@@ -116,7 +185,7 @@ const columns = ref([
     label: "Nombre Grupo",
     align: "left",
     field: (row) => row.NOMBRE,
-    format: (val) => `${val ? "" : val?.length > 20 ? val.substring(0, 20) + "..." : val}`,
+    format: (val) => val,
     sortable: true,
   },
   {
@@ -125,8 +194,7 @@ const columns = ref([
     label: "Ambito",
     align: "left",
     field: (row) => row.AMBITOMTTO,
-    format: (val) =>
-      `${!val}`,
+    format: (val) => `${val || ""}`,
     sortable: true,
   },
 ]);
@@ -183,8 +251,7 @@ const onRequest = (props) => {
     OrdenarPor: sortBy + (descending ? " DESC" : ""),
     StringABuscar: filter,
     ColumnasFiltro: "GRUPO, NOMBRE, AMBITOMTTO",
-    ColumnasVisibles:
-      "GRUPO, NOMBRE, AMBITOMTTO",
+    ColumnasVisibles: "GRUPO, NOMBRE, AMBITOMTTO",
   };
 
   api
@@ -192,7 +259,7 @@ const onRequest = (props) => {
     .then((res) => {
       const rowsNumber = res.data.result.output.TotalRegistros;
       const returnedData = res.data.result.recordset;
-      // console.log("returnedData", returnedData);
+      console.log("returnedData", returnedData);
 
       pagination.value.rowsNumber = rowsNumber;
 
@@ -355,6 +422,4 @@ watch(
 
 //#region COMPUTED
 //#endregion
-
-
 </script>
