@@ -1,5 +1,44 @@
 <template>
   <q-page>
+    <q-bar class="bg-white">
+      <div class="">
+        <q-breadcrumbs class="text-secondary">
+          <template v-slot:separator>
+            <q-icon size="1.5em" name="chevron_right" color="primary" />
+          </template>
+
+          <q-breadcrumbs-el label="Inicio" icon="home" to="/" />
+
+          <q-breadcrumbs-el
+            label="Configuración"
+            icon="settings"
+            to="/config"
+          />
+
+          <q-breadcrumbs-el
+            label="Variables del Sistema"
+            icon="fact_check"
+            class="cursor-pointer"
+            @click="vista = ''"
+            v-if="vista !== ''"
+          />
+
+          <q-breadcrumbs-el
+            label="Variables del Sistema"
+            icon="fact_check"
+            v-else
+          />
+
+          <q-breadcrumbs-el
+            :label="`Detalle de variable ${variable.IDVARIABLE}`"
+            v-if="vista !== ''"
+          />
+        </q-breadcrumbs>
+      </div>
+    </q-bar>
+    <q-separator />
+
+    {{ vista }}
     <!-- <q-btn color="primary" icon="undo" label="Regresar" to="/config" /> -->
 
     <transition
