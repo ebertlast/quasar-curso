@@ -262,11 +262,6 @@ const onSubmit = () => {
       $q.loading.show({
         message: "Consultando los datos del usuario...",
       });
-      console.log({
-        COMPANIA: compania.value.COMPANIA,
-        USUARIO: usuario.value,
-        CLAVE: clave.value,
-      });
       api
         .post("ususu/ingresar", {
           COMPANIA: compania.value.COMPANIA,
@@ -274,7 +269,6 @@ const onSubmit = () => {
           CLAVE: clave.value,
         })
         .then((res) => {
-          console.log(res);
           const jwt = res.data.jwt;
           const usuario = res.data.result;
 

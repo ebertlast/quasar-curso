@@ -69,7 +69,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: 'https://ebertlast.github.io/quasar-curso/',
       // analyze: true,
-      // env: {},
+      env: {
+        BASEURL: 'https://krystalos.com/api/',
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
